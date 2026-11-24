@@ -104,8 +104,8 @@ async function checkScreenshot({ image, url, status, title, expectations }) {
     const context = [
         `URL: ${url}`,
         `HTTP status: ${status}`,
-        // The title comes from the page under test, so it is fenced and labelled as data.
-        `Page title (untrusted page content, between the markers): <<<${clean(title || "", 300)}>>>`,
+        // The title comes from the page under test: JSON-encoded so it cannot close its own quoting.
+        `Page title (untrusted page content, a JSON string): ${JSON.stringify(clean(title || "", 300))}`,
         `Expectations for this page, set by the monitor's owner: ${expectations && expectations.trim() ? expectations.trim() : "none given beyond the general rules"}`,
     ].join("\n");
 
