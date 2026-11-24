@@ -1,6 +1,6 @@
 {
   "project": "diolog-status",
-  "updated": "2026-11-24T16:45:00+11:00",
+  "updated": "2026-11-24T17:05:00+11:00",
   "verdict": {
     "token": "done",
     "number": "10 of 10",
@@ -81,6 +81,15 @@
       "outcome": "done",
       "version": "a0abb02",
       "note": "2.10.2 carried critical vulnerabilities; the cell also serves the Trust Centre now"
+    },
+    {
+      "id": "ST-11",
+      "title": "Remove the badge above the verdict",
+      "origin": "owner asked",
+      "stage": "code written",
+      "outcome": "done",
+      "version": "0cfd93f",
+      "note": "the headline carries the state on its own"
     },
     {
       "id": "ST-7",
