@@ -53,9 +53,9 @@ const SITES = [
         name: "Trust Centre",
         url: "https://trust.diolog.com.au",
         public: true,
-        keyword: "Diolog is certified to ISO/IEC",
+        keyword: "Security you can put in front of your board",
         expectations:
-            "Diolog's Trust Centre: a navy hero saying Diolog is certified to ISO/IEC 27001:2022, a white card of four facts (certification, latest audit, 28 policies, 124 controls), then sections for the audit history, a list of policies with tick boxes, control areas and data handling.",
+            "Diolog's Trust Centre, styled like the Diolog website: the site header, a navy photo hero headed \"Security you can put in front of your board.\" with a white Certified ISO/IEC 27001:2022 card on the right, then sections with tables, a document request list, control areas and questions.",
     },
 ];
 
