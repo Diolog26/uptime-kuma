@@ -1,0 +1,42 @@
+{
+    "_comment": "The public status page's services (public-status/). Titles and descriptions are what visitors read. urls are the addresses of the Kuma keyword monitors behind each service (extra/diolog/provision.js); they are matched by address, never sent to the browser. Order is the order on the page.",
+    "services": [
+        {
+            "key": "dashboard",
+            "title": "Diolog Dashboard",
+            "description": "Where listed companies sign in and work in Diolog",
+            "icon": "dashboard",
+            "urls": [
+                "https://dashboard.diolog.com.au"
+            ]
+        },
+        {
+            "key": "investor-app",
+            "title": "Investor App",
+            "description": "Where shareholders follow companies and ask questions",
+            "icon": "smartphone",
+            "urls": [
+                "https://investors.diolog.app"
+            ]
+        },
+        {
+            "key": "website",
+            "title": "Diolog Website",
+            "description": "Product information, Insights and booking a demo",
+            "icon": "globe",
+            "urls": [
+                "https://diolog.app",
+                "https://diolog.com.au"
+            ]
+        },
+        {
+            "key": "trust",
+            "title": "Trust Centre",
+            "description": "Diolog's security, privacy and compliance documents",
+            "icon": "shield",
+            "urls": [
+                "https://trust.diolog.com.au"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diolog status</title>
+<meta name="description" content="Whether Diolog's dashboard, investor app, website and Trust Centre are working right now, and their last 90 days.">
+<meta name="theme-color" content="#0A1733">
+<link rel="icon" href="/status-assets/diolog-mark.svg" type="image/svg+xml">
+<link rel="preload" href="/status-assets/fonts/schibsted-grotesk-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/status-assets/fonts/schibsted-grotesk-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="alternate" type="application/rss+xml" title="Diolog status updates" href="/status/__SLUG__/rss">
+<link rel="stylesheet" href="/status-assets/status.css?v=__V__">
+<!--
+  DIOLOG STATUS PAGE (status.diolog.app), served by the Kuma fork for status-page domains.
+  Data: /api/diolog/status (server/diolog/status-api.js), first copy inlined below.
+
+  DIRECTION
+    Visitor mode: Read. A customer or investor, often mid-incident and often on a phone, needs to
+    know within seconds whether the Diolog service in front of them is working, since when, and
+    whether it is a known problem. Everything below the verdict supports that answer.
+    Brand: binding, from diolog-website-oct (DESIGN.md round 5/6): navy stage with a photograph
+    (quiet-glass) under a left-weighted scrim, white product cards floating over its edge,
+    Schibsted Grotesk for Diolog's voice, Newsreader for the wordmark only, IBM Plex Mono for
+    kickers and dates, ruled section heads with an outer margin note, Iconoir at 1.7 stroke, no icon
+    tiles, no left-only accent rules, sentence case, spaced hyphens, Australian English.
+    Bold move: the verdict is the headline, set at hero scale on the stage.
+    Services by title, never by domain (owner, 24 Nov 2026).
+
+  STATE GRID (surface x state; n/a with a reason)
+                      | first-run         | loading            | ideal            | partial               | error                     | offline (refresh fails)
+    Verdict (hero)    | "Checking Diolog  | inlined data, so   | "All Diolog      | "<Title> is having    | "Status is unavailable    | verdict kept; notice
+                      |  services."       |  n/a: no blank     |  services are    |  problems." / "is     |  right now." + retry      |  "Couldn't refresh -
+                      |                   |  first paint       |  working."       |  down." / maintenance |  every 30 s + email       |  showing checks from …"
+    Service row       | "No data yet"     | skeleton rows when | "Working"        | "Having problems" /   | card shows "Services      | rows kept as last seen
+                      |                   |  no inlined data   |                  |  "Down" + since       |  could not be loaded"     |
+    Day strip         | hatched "no data" | skeleton bars      | green bars       | amber / red days      | hidden with the rows      | kept
+    Outage history    | "Every check has  | n/a: inlined       | "No outages in   | dated entries, newest | hidden                    | kept
+                      |  passed since …"  |                    |  the last 90 d"  |  first, 10 then more  |                           |
+    Notices           | n/a: none yet     | n/a                | none shown       | incident / maintenance| n/a                       | kept
+  Previews of every state: add ?preview=working|problems|down|maintenance|incident|history|first-run|unavailable|stale
+-->
+</head>
+<body>
+<!-- Iconoir 7.12.2 (MIT, assets/ICONOIR-LICENSE.txt) -->
+<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden">
+  <symbol id="i-dashboard" viewBox="0 0 24 24"><path d="M2 19V5C2 3.89543 2.89543 3 4 3H20C21.1046 3 22 3.89543 22 5V19C22 20.1046 21.1046 21 20 21H4C2.89543 21 2 20.1046 2 19Z"/> <path d="M2 7L22 7"/> <path d="M5 5.01L5.01 4.99889"/> <path d="M8 5.01L8.01 4.99889"/> <path d="M11 5.01L11.01 4.99889"/></symbol>
+  <symbol id="i-smartphone" viewBox="0 0 24 24"><path d="M12 16.01L12.01 15.9989"/> <path d="M7 19.4V4.6C7 4.26863 7.26863 4 7.6 4H16.4C16.7314 4 17 4.26863 17 4.6V19.4C17 19.7314 16.7314 20 16.4 20H7.6C7.26863 20 7 19.7314 7 19.4Z"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" /> <path d="M2.5 12.5L8 14.5L7 18L8 21" /> <path d="M17 20.5L16.5 18L14 17V13.5L17 12.5L21.5 13" /> <path d="M19 5.5L18.5 7L15 7.5V10.5L17.5 9.5H19.5L21.5 10.5" /> <path d="M2.5 10.5L5 8.5L7.5 8L9.5 5L8.5 3" /></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M8.5 11.5L11.5 14.5L16.5 9.5"/> <path d="M5 18L3.13036 4.91253C3.05646 4.39524 3.39389 3.91247 3.90398 3.79912L11.5661 2.09641C11.8519 2.03291 12.1481 2.03291 12.4339 2.09641L20.096 3.79912C20.6061 3.91247 20.9435 4.39524 20.8696 4.91252L19 18C18.9293 18.495 18.5 21.5 12 21.5C5.5 21.5 5.07071 18.495 5 18Z"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M7 12.5L10 15.5L17 8.5"/> <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"/></symbol>
+  <symbol id="i-degraded" viewBox="0 0 24 24"><path d="M20.0429 21H3.95705C2.41902 21 1.45658 19.3364 2.22324 18.0031L10.2662 4.01533C11.0352 2.67792 12.9648 2.67791 13.7338 4.01532L21.7768 18.0031C22.5434 19.3364 21.581 21 20.0429 21Z"/> <path d="M12 9V13"/> <path d="M12 17.01L12.01 16.9989"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M9.17218 14.8284L12.0006 12M14.829 9.17157L12.0006 12M12.0006 12L9.17218 9.17157M12.0006 12L14.829 14.8284"/> <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"/></symbol>
+  <symbol id="i-maintenance" viewBox="0 0 24 24"><path d="M10.0503 10.6066L2.97923 17.6777C2.19818 18.4587 2.19818 19.7251 2.97923 20.5061V20.5061C3.76027 21.2872 5.0266 21.2872 5.80765 20.5061L12.8787 13.4351"/> <path d="M17.1927 13.7994L21.071 17.6777C21.8521 18.4587 21.8521 19.7251 21.071 20.5061V20.5061C20.29 21.2872 19.0236 21.2872 18.2426 20.5061L12.0341 14.2977"/> <path d="M6.73267 5.90381L4.61135 6.61092L2.49003 3.07539L3.90424 1.66117L7.43978 3.78249L6.73267 5.90381ZM6.73267 5.90381L9.5629 8.73404"/> <path d="M10.0503 10.6066C9.2065 8.45359 9.37147 5.62861 11.111 3.8891C12.8505 2.14958 16.0607 1.76778 17.8285 2.82844L14.7878 5.86911L14.5052 8.98015L17.6162 8.69754L20.6569 5.65686C21.7176 7.42463 21.3358 10.6349 19.5963 12.3744C17.8567 14.1139 15.0318 14.2789 12.8788 13.435"/></symbol>
+  <symbol id="i-nodata" viewBox="0 0 24 24"><path d="M8 12H16"/> <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><path d="M12 6L12 12L18 12"/> <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><path d="M7 9L12 12.5L17 9"/> <path d="M2 17V7C2 5.89543 2.89543 5 4 5H20C21.1046 5 22 5.89543 22 7V17C22 18.1046 21.1046 19 20 19H4C2.89543 19 2 18.1046 2 17Z"/></symbol>
+  <symbol id="i-rss" viewBox="0 0 24 24"><path d="M12 19C12 14.8 9.2 12 5 12"/> <path d="M19 19C19 10.6 13.4 5 5 5"/> <path d="M5 19.01L5.01 18.9989"/></symbol>
+  <symbol id="i-external" viewBox="0 0 24 24"><path d="M6.00005 19L19 5.99996M19 5.99996V18.48M19 5.99996H6.52005"/></symbol>
+  <symbol id="i-retry" viewBox="0 0 24 24"><path d="M21.1679 8C19.6247 4.46819 16.1006 2 11.9999 2C6.81459 2 2.55104 5.94668 2.04932 11"/> <path d="M17 8H21.4C21.7314 8 22 7.73137 22 7.4V3"/> <path d="M2.88146 16C4.42458 19.5318 7.94874 22 12.0494 22C17.2347 22 21.4983 18.0533 22 13"/> <path d="M7.04932 16H2.64932C2.31795 16 2.04932 16.2686 2.04932 16.6V21"/></symbol>
+  <symbol id="i-offline" viewBox="0 0 24 24"><path d="M12 19.51L12.01 19.4989"/> <path d="M3 3L21 21"/> <path d="M2 8C3.18476 7.11143 4.4475 6.39832 5.75742 5.86066M22 8C18.4276 5.32068 14.1461 4.23664 10 4.74787"/> <path d="M5 12C6.3333 11 7.8888 10.3333 9.51838 10M19 12C17.7314 11.0486 16.2617 10.3989 14.7183 10.0509"/> <path d="M8.5 15.5C10.7504 14.1 13.2498 14.0996 15.5001 15.5"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><path d="M12 11.5V16.5"/> <path d="M12 7.51L12.01 7.49889"/> <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"/></symbol>
+</svg>
+<a class="skip" href="#services">Skip to services</a>
+<div class="preview-bar" id="preview-bar" hidden></div>
+
+<header class="site-nav">
+  <div class="wrap nav-row">
+    <a class="wordmark" href="https://diolog.app/" aria-label="Diolog website">
+      <img src="/status-assets/diolog-mark.svg" alt="" width="22" height="20">diolog
+    </a>
+    <span class="nav-label">Status</span>
+    <nav class="nav-right" aria-label="Help">
+      <a class="nav-link" href="https://diolog.app/">Diolog website<svg class="i sm" aria-hidden="true"><use href="#i-external"/></svg></a>
+      <a class="btn sm" href="mailto:hello@diolog.com.au?subject=Diolog%20status">
+        <svg class="i" aria-hidden="true"><use href="#i-mail"/></svg>Contact support
+      </a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="stage photo hero" aria-labelledby="verdict">
+    <div class="wrap hero-grid">
+      <span class="badge" id="badge" aria-hidden="true"><svg class="i"><use href="#i-up"/></svg></span>
+      <div class="hero-copy">
+        <p class="kicker" id="kicker" data-live="on"><span class="live-dot" aria-hidden="true"></span><span id="kicker-text">Live status</span></p>
+        <h1 id="verdict">Checking Diolog services.</h1>
+        <p class="lede" id="lede">The latest checks are loading.</p>
+        <p class="meta" id="meta" aria-live="polite"></p>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap lift">
+    <div id="notices"></div>
+
+    <section class="card services" id="services" aria-labelledby="services-h">
+      <div class="card-head">
+        <h2 id="services-h">Services</h2>
+        <span class="range"><span class="r90">Last 90 days</span><span class="r30">Last 30 days</span></span>
+      </div>
+      <ol class="svc-list" id="svc-list" aria-busy="true">
+        <li class="svc skeleton" aria-hidden="true"><span class="sk sk-t"></span><span class="sk sk-s"></span><span class="sk sk-b"></span></li>
+        <li class="svc skeleton" aria-hidden="true"><span class="sk sk-t"></span><span class="sk sk-s"></span><span class="sk sk-b"></span></li>
+        <li class="svc skeleton" aria-hidden="true"><span class="sk sk-t"></span><span class="sk sk-s"></span><span class="sk sk-b"></span></li>
+        <li class="svc skeleton" aria-hidden="true"><span class="sk sk-t"></span><span class="sk sk-s"></span><span class="sk sk-b"></span></li>
+      </ol>
+      <div class="legend" id="legend">
+        <span><i class="key up"></i>No downtime</span>
+        <span><i class="key warn"></i>Some downtime</span>
+        <span><i class="key bad"></i>Down 30 minutes or more</span>
+        <span><i class="key none"></i>No data yet</span>
+        <span class="legend-note">Each bar is one day, midnight to midnight UTC</span>
+      </div>
+    </section>
+  </div>
+
+  <section class="history" id="history-section" aria-labelledby="history-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="history-h">Outages in the last 90 days</h2>
+        <p class="sh-note" id="history-note">Recorded automatically when a service fails three checks in a row.</p>
+      </div>
+      <div id="history"></div>
+    </div>
+  </section>
+
+  <section class="how alt" aria-labelledby="how-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="how-h">Every service is checked every minute.</h2>
+        <p class="sh-note">The checks run from Diolog's own monitoring in Sydney, separate from the services they check.</p>
+      </div>
+      <div class="entries">
+        <article class="entry">
+          <h3>Loaded from Sydney</h3>
+          <p>Each service is opened every 60 seconds from Sydney, and the page has to show what a visitor expects to see, not just answer.</p>
+        </article>
+        <article class="entry">
+          <h3>Down after three misses</h3>
+          <p>A service is marked down only after three failed checks in a row, about three minutes, so one slow response does not count as an outage.</p>
+        </article>
+        <article class="entry">
+          <h3>Still having trouble?</h3>
+          <p>If a service looks fine here but not for you, email <a href="mailto:hello@diolog.com.au?subject=Diolog%20status">hello@diolog.com.au</a> with what you were doing and when.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap foot-row">
+    <span class="foot-brand">
+      <img src="/status-assets/diolog-mark.svg" alt="" width="18" height="17"><span class="wm">diolog</span>
+      <span class="copy">&copy; <span id="year">2026</span> Diolog Pty Ltd</span>
+    </span>
+    <nav class="foot-links" aria-label="More from Diolog">
+      <a href="https://diolog.app/">Diolog website</a>
+      <a href="https://trust.diolog.com.au/">Trust Centre</a>
+      <a href="/status/__SLUG__/rss"><svg class="i sm" aria-hidden="true"><use href="#i-rss"/></svg>Status updates (RSS)</a>
+    </nav>
+  </div>
+</footer>
+
+<div class="tip" id="tip" role="tooltip" hidden></div>
+<noscript><p class="noscript">This page needs JavaScript to show live status. For help, email hello@diolog.com.au.</p></noscript>
+<script type="application/json" id="initial">__INITIAL__</script>
+<script src="/status-assets/status.js?v=__V__" data-slug="__SLUG__" defer></script>
+</body>
+</html>

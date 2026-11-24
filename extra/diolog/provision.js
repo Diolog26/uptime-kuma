@@ -1,6 +1,7 @@
 /*
  * Diolog fork: bring status.diolog.app's monitors, settings and status page to the state below.
- * Safe to run repeatedly: monitors are matched by name and updated in place.
+ * Safe to run repeatedly: monitors are matched by type and address and updated in place, so a
+ * renamed monitor is renamed rather than duplicated.
  *
  *   KUMA_USERNAME=admin node extra/diolog/provision.js https://status.diolog.app < password-file
  */
@@ -13,38 +14,45 @@ const STATUS_DOMAIN = "status.diolog.app";
  * every 30 minutes (dashboard only: a model's judgement should page the team, not announce an
  * outage to customers).
  */
+// name is what Kuma's own pages and RSS feed show, so public monitors carry the service's title
+// rather than a domain (owner, 24 Nov 2026); the second website address stays off the public page.
 const SITES = [
     {
-        name: "diolog.app",
-        url: "https://diolog.app",
-        keyword: "The governance-first workspace for investor communications",
-        expectations:
-            "The Diolog marketing homepage: the Diolog logo and navigation, the headline 'The governance-first workspace for investor communications', 'Book a demo' buttons, and sections describing the platform below it.",
-    },
-    {
-        name: "diolog.com.au",
-        url: "https://diolog.com.au",
-        keyword: "The governance-first workspace for investor communications",
-        expectations:
-            "The Diolog marketing homepage: the Diolog logo and navigation, the headline 'The governance-first workspace for investor communications', 'Book a demo' buttons, and sections describing the platform below it.",
-    },
-    {
-        name: "dashboard.diolog.com.au",
+        name: "Diolog Dashboard",
         url: "https://dashboard.diolog.com.au",
+        public: true,
         keyword: "Sign in to Diolog",
         expectations:
             "The Diolog sign-in page: the Diolog logo, the heading 'Sign in to Diolog', and sign-in options (passkey, work email, a code from an authenticator app).",
     },
     {
-        name: "investors.diolog.app",
+        name: "Investor App",
         url: "https://investors.diolog.app",
+        public: true,
         keyword: "follow the companies you own",
         expectations:
             "Diolog's investor site: the Diolog logo, a company search box, market index figures and lists of listed companies.",
     },
     {
-        name: "trust.diolog.com.au",
+        name: "Diolog Website",
+        url: "https://diolog.app",
+        public: true,
+        keyword: "The governance-first workspace for investor communications",
+        expectations:
+            "The Diolog marketing homepage: the Diolog logo and navigation, the headline 'The governance-first workspace for investor communications', 'Book a demo' buttons, and sections describing the platform below it.",
+    },
+    {
+        name: "Diolog Website (diolog.com.au)",
+        url: "https://diolog.com.au",
+        public: false,
+        keyword: "The governance-first workspace for investor communications",
+        expectations:
+            "The Diolog marketing homepage: the Diolog logo and navigation, the headline 'The governance-first workspace for investor communications', 'Book a demo' buttons, and sections describing the platform below it.",
+    },
+    {
+        name: "Trust Centre",
         url: "https://trust.diolog.com.au",
+        public: true,
         keyword: "communication compliance tool",
         expectations:
             "Diolog's Trust Center: the Diolog name, a description of Diolog as a communication compliance tool, and navigation for Overview, Resources, Controls, Subprocessors and FAQ.",
@@ -82,7 +90,7 @@ function keywordMonitor(site) {
         retryInterval: 60,
         maxretries: 2,
         timeout: 48,
-        description: `Loads ${site.url} and checks the page contains "${site.keyword}".`,
+        description: `Loads the page and checks it contains "${site.keyword}".`,
     };
 }
 
@@ -102,7 +110,7 @@ function visualMonitor(site) {
         expiryNotification: false,
         ai_visual_check: true,
         ai_visual_prompt: site.expectations,
-        description: `Renders ${site.url} in Chromium and asks GPT-6 Luna (Bedrock) whether the screenshot shows an obvious problem.`,
+        description: "Renders the page in Chromium and asks GPT-6 Luna (Bedrock) whether the screenshot shows an obvious problem.",
     };
 }
 
@@ -119,7 +127,7 @@ function visualMonitor(site) {
         const monitorListPromise = kuma.next("monitorList");
         ensureOk("login", await kuma.call("login", { username, password, token: "" }));
         const existing = Object.values(await monitorListPromise);
-        const byName = new Map(existing.map((m) => [m.name, m]));
+        const byAddress = new Map(existing.map((m) => [`${m.type} ${m.url}`, m]));
 
         // Settings: Caddy on the same node is the proxy, and the public address is the status domain.
         // setSettings stores the whole object it is given, so unset keys get the defaults Kuma's own
@@ -143,7 +151,7 @@ function visualMonitor(site) {
         const ids = {};
         for (const site of SITES) {
             for (const desired of [keywordMonitor(site), visualMonitor(site)]) {
-                const current = byName.get(desired.name);
+                const current = byAddress.get(`${desired.type} ${desired.url}`);
                 if (current) {
                     ensureOk(`edit ${desired.name}`, await kuma.call("editMonitor", { ...current, ...desired, id: current.id }));
                     ids[desired.name] = current.id;
@@ -181,7 +189,7 @@ function visualMonitor(site) {
             domainNameList: [STATUS_DOMAIN],
         };
         const groups = [
-            { name: "Websites and apps", monitorList: SITES.map((site) => ({ id: ids[site.name] })) },
+            { name: "Websites and apps", monitorList: SITES.filter((site) => site.public).map((site) => ({ id: ids[site.name] })) },
         ];
         ensureOk("saveStatusPage", await kuma.call("saveStatusPage", slug, config, "/icon.svg", groups));
         console.log(`provision: status page "${slug}" served at https://${STATUS_DOMAIN}/`);

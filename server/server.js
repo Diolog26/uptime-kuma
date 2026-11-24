@@ -260,6 +260,28 @@ let needSetup = false;
     // Normal Router here
     // ***************************
 
+    // Diolog fork: the public status page (public-status/) and its data (server/diolog/status-api.js).
+    // A status page domain (status.diolog.app) gets this page at its root instead of Kuma's own; Kuma's
+    // page stays at /status/<slug>. /diolog-status/<slug> serves it on any host, for previews and tests.
+    const diologStatus = require("./diolog/status-page");
+    app.use("/status-assets", express.static(diologStatus.assetsDir, { maxAge: "1h", fallthrough: false }));
+    app.get("/api/diolog/status", async (request, response) => {
+        const slug = request.query.slug || (await diologStatus.slugForRequest(request));
+        if (!slug) {
+            return response.status(404).json({ ok: false, msg: "This address is not a status page." });
+        }
+        try {
+            response.set("Cache-Control", "no-store");
+            response.json(await diologStatus.getStatus(String(slug)));
+        } catch (e) {
+            log.error("diolog-status", e.message);
+            response.status(e.status || 500).json({ ok: false, msg: e.status ? e.message : "Status could not be built." });
+        }
+    });
+    app.get("/diolog-status/:slug", async (request, response) => {
+        await diologStatus.sendPage(response, request.params.slug);
+    });
+
     // Entry Page
     app.get("/", async (request, response) => {
         let hostname = request.hostname;
@@ -277,7 +299,11 @@ let needSetup = false;
             log.debug("entry", "This is a status page domain");
 
             let slug = StatusPage.domainMappingList[hostname];
-            await StatusPage.handleStatusPageResponse(response, server.indexHTML, slug);
+            if (diologStatus.available()) {
+                await diologStatus.sendPage(response, slug);
+            } else {
+                await StatusPage.handleStatusPageResponse(response, server.indexHTML, slug);
+            }
         } else if (uptimeKumaEntryPage && uptimeKumaEntryPage.startsWith("statusPage-")) {
             response.redirect("/status/" + uptimeKumaEntryPage.replace("statusPage-", ""));
         } else {
