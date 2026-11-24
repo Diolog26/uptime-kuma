@@ -90,10 +90,6 @@
 
     function renderHero(d) {
         const v = d ? verdict(d) : { state: "unavailable", h: "Status is unavailable right now.", lede: "" };
-        const badge = $("badge");
-        const iconFor = { up: "up", degraded: "degraded", down: "down", maintenance: "maintenance", nodata: "nodata", unavailable: "offline" };
-        badge.dataset.state = failing && d ? "stale" : v.state;
-        badge.innerHTML = `<svg class="i"><use href="#i-${failing && d ? "offline" : iconFor[v.state]}"/></svg>`;
         $("verdict").textContent = v.h;
         // "Live" only while the figures are current; the pulsing dot would otherwise vouch for old data.
         const live = Boolean(d) && !failing;

@@ -75,15 +75,8 @@ svg.i.sm{width:14px;height:14px}
 .stage{background:var(--stage);color:var(--on-stage);position:relative}
 .photo{background:linear-gradient(90deg,rgba(10,23,51,.94) 0%,rgba(10,23,51,.78) 48%,rgba(10,23,51,.3) 100%),url(quiet-glass.jpg) center 62%/cover var(--stage)}
 .hero{padding:88px 0 184px}
-/* The badge stacks above the kicker so the hero copy shares the content rail with the card and sections below. */
 .hero-grid{display:flex;flex-direction:column;align-items:flex-start;gap:24px}
 .hero-copy{max-width:780px}
-.badge{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(255,255,255,.16);color:var(--ok-stage)}
-.badge svg.i{width:26px;height:26px;stroke-width:1.6}
-.badge[data-state="degraded"],.badge[data-state="stale"]{color:var(--warn-stage)}
-.badge[data-state="down"],.badge[data-state="unavailable"]{color:var(--bad-stage)}
-.badge[data-state="maintenance"]{color:var(--signal)}
-.badge[data-state="nodata"]{color:var(--on-stage-2)}
 .kicker{display:flex;align-items:center;gap:10px;margin:0 0 18px;font:500 13px/1.4 var(--font-ref);letter-spacing:.08em;text-transform:uppercase;color:var(--signal)}
 .live-dot{width:8px;height:8px;border-radius:50%;background:var(--ok-stage);box-shadow:0 0 0 0 rgba(126,211,166,.6);animation:pulse 2.4s var(--ease-out) infinite}
 .kicker[data-live="off"] .live-dot{display:none}
@@ -231,8 +224,6 @@ svg.i.sm{width:14px;height:14px}
   .btn.sm .i{display:none}
   .hero{padding:48px 0 136px}
   .hero-grid{gap:20px}
-  .badge{width:48px;height:48px}
-  .badge svg.i{width:24px;height:24px}
   .stage .lede{font-size:17px}
   .photo{background:linear-gradient(180deg,rgba(10,23,51,.9) 0%,rgba(10,23,51,.82) 100%),url(quiet-glass.jpg) 70% 60%/cover var(--stage)}
   .lift{margin-top:-88px}
