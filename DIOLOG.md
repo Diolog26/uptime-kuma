@@ -20,16 +20,16 @@ check on the real-browser monitor.
 - **Setup and provisioning scripts** (`extra/diolog/`). `setup-admin.js` creates the admin account
   against localhost before the instance is reachable; `provision.js` brings the monitors, settings and
   the status page to the state written in that file and is safe to re-run.
-- **Image** (`docker/diolog.dockerfile`), built for linux/arm64 by `.github/workflows/diolog-image.yml`
-  on every push to `diolog` and pushed to `ghcr.io/diolog26/uptime-kuma`. Upstream's workflows are
-  removed on this branch.
+- **Image** (`docker/diolog.dockerfile`), built for linux/arm64 and pushed by `extra/diolog/push-image.sh`
+  to the status cell's own ECR repository, tagged with the commit. Upstream's GitHub workflows are removed
+  on this branch, and nothing is published to the GitHub registry.
 
 ## Where it runs
 
 In its own AWS cell, defined in the dAIolog repo at `apps/infra/cells/status` (Pulumi): its own VPC, one
 Graviton node running k3s with this image, Caddy for TLS and SQLite on an encrypted EBS volume. To ship
-a change: push to `diolog`, take the digest from the workflow summary, set `kumaImage` in that
-project's `Pulumi.prod.yaml`, and run `pulumi up` there.
+a change: commit to `diolog`, run `extra/diolog/push-image.sh`, put the digest it prints in that project's
+`Pulumi.prod.yaml` as `kumaImageDigest`, and run `pulumi up` there.
 
 To change the monitors, edit `SITES` in `extra/diolog/provision.js` and run it against the live site:
 
