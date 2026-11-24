@@ -456,14 +456,14 @@ th[aria-sort="ascending"] button.sort, th[aria-sort="descending"] button.sort { 
 <script type="application/json" id="report-data">
 {
  "project": "diolog-status",
- "updated": "2026-11-24T14:20:00+11:00",
+ "updated": "2026-11-24T15:40:00+11:00",
  "verdict": {
   "token": "done",
   "number": "10 of 10",
   "unit": "checks passing on status.diolog.app",
-  "headline": "Live in its own AWS cell; nobody is alerted yet when a site goes down.",
-  "run_label": "first release",
-  "head_sha": "075a055"
+  "headline": "Redesigned status page is live, by service title; nobody is alerted yet when a site goes down.",
+  "run_label": "status page redesign",
+  "head_sha": "7882cf5"
  },
  "tasks": [
   {
@@ -521,6 +521,15 @@ th[aria-sort="ascending"] button.sort, th[aria-sort="descending"] button.sort { 
    "note": "20 resources removed, Mongo cluster untouched"
   },
   {
+   "id": "ST-9",
+   "title": "Redesign the public status page in the new website's style",
+   "origin": "planned",
+   "stage": "code written",
+   "outcome": "done",
+   "version": "7882cf5",
+   "note": "titles not domains, 9 states, diolog.app logo, Iconoir"
+  },
+  {
    "id": "ST-7",
    "title": "Send an alert when a site goes down",
    "origin": "planned",
@@ -542,11 +551,43 @@ th[aria-sort="ascending"] button.sort, th[aria-sort="descending"] button.sort { 
  "gates": [
   {
    "name": "Every monitor reports up on the live site",
-   "command": "socket login to https://status.diolog.app, latest heartbeat per monitor",
+   "command": "GET /api/diolog/status on status.diolog.app",
    "exit_code": 0,
-   "counts": "10/10",
+   "counts": "4/4",
    "state": "done",
    "kind": "tests"
+  },
+  {
+   "name": "No domain appears on the public page or its data",
+   "command": "search the live JSON and Kuma's own status page for diolog.app / diolog.com.au",
+   "exit_code": 0,
+   "counts": "2/2",
+   "state": "done",
+   "kind": "tests"
+  },
+  {
+   "name": "Text contrast on every element checked",
+   "command": "design-review probe sweep at 390, 768, 1280, 1440 (0 fail / 59 pass)",
+   "exit_code": 0,
+   "counts": "59/59",
+   "state": "done",
+   "kind": "design"
+  },
+  {
+   "name": "Every page state renders",
+   "command": "?preview= for 9 states, captured in Chromium at 1440 and 390",
+   "exit_code": 0,
+   "counts": "9/9",
+   "state": "done",
+   "kind": "design"
+  },
+  {
+   "name": "No sideways scroll on a phone",
+   "command": "scrollWidth against innerWidth at 390",
+   "exit_code": 0,
+   "counts": "1/1",
+   "state": "done",
+   "kind": "design"
   },
   {
    "name": "Visual check catches broken pages",
@@ -557,36 +598,12 @@ th[aria-sort="ascending"] button.sort, th[aria-sort="descending"] button.sort { 
    "kind": "tests"
   },
   {
-   "name": "Public page lists the five sites",
-   "command": "curl /api/status-page/heartbeat/diolog; screenshot in Chromium",
-   "exit_code": 0,
-   "counts": "5/5",
-   "state": "done",
-   "kind": "design"
-  },
-  {
    "name": "HTTPS certificate is valid",
    "command": "openssl s_client status.diolog.app:443 (Let's Encrypt, to 22 Feb 2027)",
    "exit_code": 0,
    "counts": "1/1",
    "state": "done",
    "kind": "security"
-  },
-  {
-   "name": "Only web ports answer from the internet",
-   "command": "nc to 3001 and 22 on the node's address",
-   "exit_code": 0,
-   "counts": "2/2",
-   "state": "done",
-   "kind": "security"
-  },
-  {
-   "name": "Infrastructure change left the Mongo cluster alone",
-   "command": "pulumi preview/up on the Mongo stack: 70 unchanged",
-   "exit_code": 0,
-   "counts": "70/70",
-   "state": "done",
-   "kind": "build"
   }
  ],
  "armed": [
@@ -625,6 +642,14 @@ th[aria-sort="ascending"] button.sort, th[aria-sort="descending"] button.sort { 
    "true_state": "The VPC used the same address range as k3s's pod network, so pods could not reach DNS; the cell was rebuilt in 10.44.0.0/16.",
    "mechanism": "VPC range chosen without checking k3s's defaults.",
    "caught_by": "Caddy could not get a certificate"
+  },
+  {
+   "earlier_claim": "The tabular-figures fix removed the spaced punctuation",
+   "said_pct": 100,
+   "true_pct": 0,
+   "true_state": "The browser kept the old stylesheet for an hour; asset URLs now carry a content hash.",
+   "mechanism": "Status assets are cached for an hour and the URL never changed.",
+   "caught_by": "a second full-resolution crop still showed the gaps"
   }
  ],
  "coverage": [
@@ -645,8 +670,8 @@ th[aria-sort="ascending"] button.sort, th[aria-sort="descending"] button.sort { 
    "why_not": "No alert channel is configured yet."
   },
   {
-   "axis": "Status page on a phone",
-   "why_not": "Only viewed at desktop width."
+   "axis": "Screen-reader reading of the page",
+   "why_not": "Needs a person with a screen reader; the day bars carry a text summary but it was not heard."
   }
  ],
  "not_done": [
@@ -661,12 +686,6 @@ th[aria-sort="ascending"] button.sort, th[aria-sort="descending"] button.sort { 
    "reason": "The Diolog26 org disables Actions on the fork, and Egress's Linux runners are x64 while the node is arm64.",
    "what_would_unblock": "An org admin allowing Actions on Diolog26/uptime-kuma.",
    "size": "under an hour"
-  },
-  {
-   "action": "Diolog logo on the status page",
-   "reason": "Kuma's default icon is shown.",
-   "what_would_unblock": "A PNG logo to upload.",
-   "size": "minutes"
   },
   {
    "action": "Outside check on status.diolog.app itself",
@@ -755,7 +774,7 @@ th[aria-sort="ascending"] button.sort, th[aria-sort="descending"] button.sort { 
  ],
  "git": {
   "branch": "diolog",
-  "commits_ahead": 5,
+  "commits_ahead": 8,
   "worktree_clean": true,
   "pushed": true
  }
