@@ -456,14 +456,14 @@ th[aria-sort="ascending"] button.sort, th[aria-sort="descending"] button.sort { 
 <script type="application/json" id="report-data">
 {
  "project": "diolog-status",
- "updated": "2026-11-24T15:40:00+11:00",
+ "updated": "2026-11-24T16:45:00+11:00",
  "verdict": {
   "token": "done",
   "number": "10 of 10",
   "unit": "checks passing on status.diolog.app",
   "headline": "Redesigned status page is live, by service title; nobody is alerted yet when a site goes down.",
   "run_label": "status page redesign",
-  "head_sha": "7882cf5"
+  "head_sha": "a0abb02"
  },
  "tasks": [
   {
@@ -528,6 +528,15 @@ th[aria-sort="ascending"] button.sort, th[aria-sort="descending"] button.sort { 
    "outcome": "done",
    "version": "7882cf5",
    "note": "titles not domains, 9 states, diolog.app logo, Iconoir"
+  },
+  {
+   "id": "ST-10",
+   "title": "Caddy 2.11.8 in front of the cell",
+   "origin": "found during work",
+   "stage": "code written",
+   "outcome": "done",
+   "version": "a0abb02",
+   "note": "2.10.2 carried critical vulnerabilities; the cell also serves the Trust Centre now"
   },
   {
    "id": "ST-7",
@@ -774,7 +783,7 @@ th[aria-sort="ascending"] button.sort, th[aria-sort="descending"] button.sort { 
  ],
  "git": {
   "branch": "diolog",
-  "commits_ahead": 8,
+  "commits_ahead": 9,
   "worktree_clean": true,
   "pushed": true
  }
