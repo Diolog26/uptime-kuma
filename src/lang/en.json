@@ -1623,5 +1623,10 @@
     "Pattern Code ID": "Pattern Code ID",
     "Amoot SMS pattern help": "Enter the Pattern Code ID from your Amoot SMS panel. {0}",
     "Create an Amoot SMS pattern": "Create an Amoot SMS pattern",
-    "Use Own Line for Pattern": "Use Own Line for Pattern"
+    "Use Own Line for Pattern": "Use Own Line for Pattern",
+    "aiVisualCheck": "AI visual check",
+    "aiVisualCheckDescription": "After the page loads, a vision model on Amazon Bedrock looks at the screenshot and marks the monitor down if it sees an obvious problem: an error page, a blank page, missing styles, broken images or a broken layout.",
+    "aiVisualPrompt": "What must be on this page",
+    "aiVisualPromptPlaceholder": "e.g. The Diolog logo, a headline and a 'Book a demo' button are visible.",
+    "aiVisualPromptDescription": "Optional. Anything listed here and missing from the screenshot counts as a problem."
 }

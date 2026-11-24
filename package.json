@@ -70,6 +70,7 @@
         "create-release": "node ./extra/release/create-release.mjs"
     },
     "dependencies": {
+        "@aws-sdk/client-bedrock-runtime": "~3.1165.0",
         "@grpc/grpc-js": "~1.8.22",
         "@louislam/ping": "~0.4.4-mod.1",
         "@louislam/sqlite3": "15.1.6",

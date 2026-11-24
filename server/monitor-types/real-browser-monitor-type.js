@@ -9,6 +9,10 @@ const jwt = require("jsonwebtoken");
 const config = require("../config");
 const { RemoteBrowser } = require("../remote-browser");
 const { commandExists } = require("../util-server");
+const { checkScreenshot } = require("../diolog/visual-check");
+
+/** Tallest slice of a page the AI visual check is shown, so the image stays within model limits. */
+const AI_VISUAL_MAX_HEIGHT = 4000;
 
 /**
  * Cached instance of a browser
@@ -253,7 +257,12 @@ class RealBrowserMonitorType extends MonitorType {
         const browser = monitor.remote_browser
             ? await getRemoteBrowser(monitor.remote_browser, monitor.user_id)
             : await getBrowser();
-        const context = await browser.newContext();
+        const aiVisualCheck = Boolean(monitor.ai_visual_check);
+        // Diolog fork: the visual check judges a desktop-width page, not Playwright's 1280x720 default.
+        // Reduced motion makes most scroll-reveal effects render their final state immediately.
+        const context = await browser.newContext(
+            aiVisualCheck ? { viewport: { width: 1440, height: 900 }, reducedMotion: "reduce" } : undefined
+        );
         try {
             const page = await context.newPage();
 
@@ -282,11 +291,46 @@ class RealBrowserMonitorType extends MonitorType {
             });
 
             if (res.status() >= 200 && res.status() < 400) {
-                heartbeat.status = UP;
-                heartbeat.msg = res.status();
-
                 const timing = res.request().timing();
                 heartbeat.ping = timing.responseEnd;
+
+                if (aiVisualCheck) {
+                    // Content revealed on scroll stays invisible in an unscrolled full-page capture,
+                    // which reads to the model as a blank page. Scroll through it as a visitor would.
+                    const pageHeight = await page.evaluate(async (maxHeight) => {
+                        const step = Math.floor(window.innerHeight * 0.8);
+                        const end = Math.min(document.documentElement.scrollHeight, maxHeight);
+                        for (let y = 0; y < end; y += step) {
+                            window.scrollTo(0, y);
+                            await new Promise((resolve) => setTimeout(resolve, 150));
+                        }
+                        window.scrollTo(0, 0);
+                        return document.documentElement.scrollHeight;
+                    }, AI_VISUAL_MAX_HEIGHT);
+                    await page.waitForTimeout(1000);
+                    const image = await page.screenshot({
+                        type: "jpeg",
+                        quality: 80,
+                        fullPage: true,
+                        clip: { x: 0, y: 0, width: 1440, height: Math.min(Math.max(pageHeight, 900), AI_VISUAL_MAX_HEIGHT) },
+                    });
+                    const verdict = await checkScreenshot({
+                        image,
+                        url: monitor.url,
+                        status: res.status(),
+                        title: await page.title(),
+                        expectations: monitor.ai_visual_prompt,
+                    });
+                    if (verdict.verdict === "problem") {
+                        const detail = verdict.issues.length ? ` (${verdict.issues.join("; ")})` : "";
+                        throw new Error(`Visual check: ${verdict.summary}${detail}`);
+                    }
+                    heartbeat.status = UP;
+                    heartbeat.msg = `${res.status()} - visual check passed: ${verdict.summary}`;
+                } else {
+                    heartbeat.status = UP;
+                    heartbeat.msg = res.status();
+                }
             } else {
                 throw new Error(res.status() + "");
             }

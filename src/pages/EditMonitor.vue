@@ -1770,6 +1770,37 @@
                                 </div>
                             </div>
 
+                            <!-- Diolog fork: AI visual check - Real Browser only -->
+                            <div v-if="monitor.type === 'real-browser'" class="my-3 form-check">
+                                <input
+                                    id="ai-visual-check"
+                                    v-model="monitor.ai_visual_check"
+                                    class="form-check-input"
+                                    type="checkbox"
+                                />
+                                <label class="form-check-label" for="ai-visual-check">
+                                    {{ $t("aiVisualCheck") }}
+                                </label>
+                                <div class="form-text">
+                                    {{ $t("aiVisualCheckDescription") }}
+                                </div>
+                            </div>
+                            <div v-if="monitor.type === 'real-browser' && monitor.ai_visual_check" class="my-3">
+                                <label for="ai-visual-prompt" class="form-label">
+                                    {{ $t("aiVisualPrompt") }}
+                                </label>
+                                <textarea
+                                    id="ai-visual-prompt"
+                                    v-model="monitor.ai_visual_prompt"
+                                    class="form-control"
+                                    rows="3"
+                                    :placeholder="$t('aiVisualPromptPlaceholder')"
+                                ></textarea>
+                                <div class="form-text">
+                                    {{ $t("aiVisualPromptDescription") }}
+                                </div>
+                            </div>
+
                             <div v-if="showDomainExpiryNotification" class="my-3 form-check">
                                 <input
                                     id="domain-expiry-notification"
@@ -3356,6 +3387,8 @@ const monitorDefaults = {
     gamedigToken: "",
     remote_browser: null,
     screenshot_delay: 0,
+    ai_visual_check: false,
+    ai_visual_prompt: "",
     rabbitmqNodes: [],
     rabbitmqUsername: "",
     rabbitmqPassword: "",
