@@ -1,6 +1,6 @@
 {
   "project": "diolog-status",
-  "updated": "2026-11-24T17:05:00+11:00",
+  "updated": "2026-11-24T23:20:00+11:00",
   "verdict": {
     "token": "done",
     "number": "10 of 10",
@@ -92,6 +92,14 @@
       "note": "the headline carries the state on its own"
     },
     {
+      "id": "ST-12",
+      "title": "Isolated, tagged uptime-status, $3/day budget",
+      "origin": "owner asked",
+      "stage": "code written",
+      "outcome": "done",
+      "note": "own state bucket; visual checks billed through a tagged Bedrock profile; Trust Centre moved out"
+    },
+    {
       "id": "ST-7",
       "title": "Send an alert when a site goes down",
       "origin": "planned",
@@ -164,6 +172,14 @@
       "command": "openssl s_client status.diolog.app:443 (Let's Encrypt, to 22 Feb 2027)",
       "exit_code": 0,
       "counts": "1/1",
+      "state": "done",
+      "kind": "security"
+    },
+    {
+      "name": "Every taggable resource carries Project=uptime-status",
+      "command": "tagging API, IAM role and budget tags",
+      "exit_code": 0,
+      "counts": "17/17",
       "state": "done",
       "kind": "security"
     }
